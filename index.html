@@ -241,6 +241,16 @@
                 <div class="relative w-full">
                     <p class="text-[10px] tracking-[0.3em] text-gray-600 mb-10" id="shloka-ref"></p>
                     <h3 id="shloka-sanskrit" class="sanskrit-text text-2xl md:text-4xl leading-[2.5] text-orange-50/90 drop-shadow-[0_0_20px_rgba(255,237,213,0.3)] font-light"></h3>
+                    
+                    <div class="flex justify-center mt-10 mb-2">
+                        <button id="shloka-audio-btn" onclick="playShlokaAudio()" class="group relative px-6 py-3 flex items-center gap-3 border border-orange-500/30 bg-orange-500/10 text-orange-200/80 hover:text-orange-100 hover:border-orange-500/70 hover:bg-orange-500/20 rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(251,146,60,0.1)] hover:shadow-[0_0_25px_rgba(251,146,60,0.3)]">
+                            <svg id="shloka-play-icon" class="w-4 h-4 drop-shadow-[0_0_5px_currentColor]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="shloka-pause-icon" class="w-4 h-4 hidden drop-shadow-[0_0_5px_currentColor]" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                            <span id="shloka-audio-text" class="text-[10px] tracking-[0.3em] uppercase">Listen to Verse</span>
+                        </button>
+                        <audio id="shloka-audio-player" class="hidden"></audio>
+                    </div>
+
                     <p id="shloka-roman" class="text-sm md:text-base text-orange-200/50 leading-relaxed mt-6 font-light tracking-wide italic transition-opacity duration-1000"></p>
                 </div>
 
@@ -291,28 +301,100 @@
         // --- DATABASE ---
         const shlokaDB = {
             Anxiety: [
-                { ref: "BG 2.47", sanskrit: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥", roman: "karmaṇy evādhikāras te mā phaleṣhu kadāchana\nmā karma-phala-hetur bhūr mā te saṅgo ’stv akarmaṇi", translation: "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action." }
+                { ref: "BG 2.47", sanskrit: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥", roman: "karmaṇy evādhikāras te mā phaleṣhu kadāchana\nmā karma-phala-hetur bhūr mā te saṅgo ’stv akarmaṇi", translation: "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action." },
+                { ref: "BG 2.40", sanskrit: "नेहाभिक्रमनाशोऽस्ति प्रत्यवायो न विद्यते।\nस्वल्पमप्यस्य धर्मस्य त्रायते महतो भयात्॥", roman: "nehābhikrama-nāśho ’sti pratyavāyo na vidyate\nsvalpam apy asya dharmasya trāyate mahato bhayāt", translation: "In this endeavor there is no loss or diminution, and a little advancement on this path can protect one from the most dangerous type of fear." },
+                { ref: "BG 18.58", sanskrit: "मच्चित्तः सर्वदुर्गाणि मत्प्रसादात्तरिष्यसि।\nअथ चेत्त्वमहङ्कारान्न श्रोष्यसि विनङ्क्ष्यसि॥", roman: "mac-cittaḥ sarva-durgāṇi mat-prasādāt tariṣhyasi\natha chet tvam ahankārān na śhroṣhyasi vinaṅkṣhyasi", translation: "If you become conscious of Me, you will pass over all the obstacles of conditioned life by My grace. If, however, you do not work in such consciousness but act through false ego, you will be lost." },
+                { ref: "BG 2.15", sanskrit: "यं हि न व्यथयन्त्येते पुरुषं पुरुषर्षभ।\nसमदुःखसुखं धीरं सोऽमृतत्वाय कल्पते॥", roman: "yaṁ hi na vyathayanty ete puruṣhaṁ puruṣharṣhabha\nsama-duḥkha-sukhaṁ dhīraṁ so ’mṛitatvāya kalpate", translation: "O best among men [Arjuna], the person who is not disturbed by happiness and distress and is steady in both is certainly eligible for liberation." },
+                { ref: "BG 6.34", sanskrit: "चञ्चलं हि मनः कृष्ण प्रमाथि बलवद्दृढम्।\nतस्याहं निग्रहं मन्ये वायोरिव सुदुष्करम्॥", roman: "chañchalaṁ hi manaḥ kṛiṣhṇa pramāthi balavad dṛiḍham\ntasyāhaṁ nigrahaṁ manye vāyor iva su-duṣhkaram", translation: "For the mind is restless, turbulent, obstinate and very strong, O Krishna, and to subdue it, I think, is more difficult than controlling the wind." },
+                { ref: "BG 6.35", sanskrit: "असंशयं महाबाहो मनो दुर्निग्रहं चलम्।\nअभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते॥", roman: "asanśhayaṁ mahā-bāho mano durnigrahaṁ chalam\nabhyāsena tu kaunteya vairāgyeṇa cha gṛihyate", translation: "Lord Krishna said: O mighty-armed son of Kunti, it is undoubtedly very difficult to curb the restless mind, but it is possible by suitable practice and by detachment." },
+                { ref: "BG 3.30", sanskrit: "मयि सर्वाणि कर्माणि सन्न्यस्याध्यात्मचेतसा।\nनिराशीर्निर्ममो भूत्वा युध्यस्व विगतज्वरः॥", roman: "mayi sarvāṇi karmāṇi sannyasyādhyātma-chetasā\nnirāśhīr nirmamo bhūtvā yudhyasva vigata-jvaraḥ", translation: "Therefore, O Arjuna, surrendering all your works unto Me, with full knowledge of Me, without desires for profit, with no claims to proprietorship, and free from lethargy, fight." },
+                { ref: "BG 18.73", sanskrit: "नष्टो मोहः स्मृतिर्लब्धा त्वत्प्रसादान्मयाच्युत।\nस्थितोऽस्मि गतसन्देहः करिष्ये वचनं तव॥", roman: "naṣhṭo mohaḥ smṛitir labdhā tvat-prasādān mayāchyuta\nsthito ’smi gata-sandehaḥ kariṣhye vachanaṁ tava", translation: "Arjuna said: My dear Krishna, O infallible one, my illusion is now gone. I have regained my memory by Your mercy. I am now firm and free from doubt and am prepared to act according to Your instructions." },
+                { ref: "BG 12.15", sanskrit: "यस्मान्नोद्विजते लोको लोकान्नोद्विजते च यः।\nहर्षामर्षभयोद्वेगैर्मुक्तो यः स च मे प्रियः॥", roman: "yasmān nodvijate loko lokān nodvijate cha yaḥ\nharṣhāmarṣha-bhayodvegair mukto yaḥ sa cha me priyaḥ", translation: "He by whom no one is put into difficulty and who is not disturbed by anyone, who is equipoised in happiness and distress, fear and anxiety, is very dear to Me." },
+                { ref: "BG 2.27", sanskrit: "जातस्य हि ध्रुवो मृत्युर्ध्रुवं जन्म मृतस्य च।\nतस्मादपरिहार्येऽर्थे न त्वं शोचितुमर्हसि॥", roman: "jātasya hi dhruvo mṛityur dhruvaṁ janma mṛitasya cha\ntasmād aparihārye ’rthe na tvaṁ śhochitum arhasi", translation: "One who has taken his birth is sure to die, and after death one is sure to take birth again. Therefore, in the unavoidable discharge of your duty, you should not lament." }
             ],
             Sadness: [
-                { ref: "BG 2.14", sanskrit: "मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः।\nआगमापायिनोऽनित्यास्तांस्तितिक्षस्व भारत॥", roman: "mātrā-sparśhās tu kaunteya śhītoṣhṇa-sukha-duḥkha-dāḥ\nāgamāpāyino ’nityās tāns titikṣhasva bhārata", translation: "The nonpermanent appearance of happiness and distress, and their disappearance in due course, are like the appearance and disappearance of winter and summer seasons." }
+                { ref: "BG 2.14", sanskrit: "मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः।\nआगमापायिनोऽनित्यास्तांस्तितिक्षस्व भारत॥", roman: "mātrā-sparśhās tu kaunteya śhītoṣhṇa-sukha-duḥkha-dāḥ\nāgamāpāyino ’nityās tāns titikṣhasva bhārata", translation: "O son of Kunti, the nonpermanent appearance of happiness and distress, and their disappearance in due course, are like the appearance and disappearance of winter and summer seasons. They arise from sense perception, O scion of Bharata, and one must learn to tolerate them without being disturbed." },
+                { ref: "BG 2.11", sanskrit: "श्रीभगवानुवाच\nअशोच्यानन्वशोचस्त्वं प्रज्ञावादांश्च भाषसे।\nगतासूनगतासूंश्च नानुशोचन्ति पण्डिताः॥", roman: "śhrī bhagavān uvācha\naśhochyān anvaśhochas tvaṁ prajñā-vādānśh cha bhāṣhase\ngatāsūn agatāsūnśh cha nānuśhochanti paṇḍitāḥ", translation: "The Supreme Personality of Godhead said: While speaking learned words, you are mourning for what is not worthy of grief. Those who are wise lament neither for the living nor for the dead." },
+                { ref: "BG 2.22", sanskrit: "वासांसि जीर्णानि यथा विहाय\nनवानि गृह्णाति नरोऽपराणि।\nतथा शरीराणि विहाय जीर्णान्य्\nअन्यानि संयाति नवानि देही॥", roman: "vāsānsi jīrṇāni yathā vihāya\nnavāni gṛihṇāti naro ’parāṇi\ntathā śharīrāṇi vihāya jīrṇāny\nanyāni sanyāti navāni dehī", translation: "As a person puts on new garments, giving up old ones, the soul similarly accepts new material bodies, giving up the old and useless ones." },
+                { ref: "BG 5.22", sanskrit: "ये हि संस्पर्शजा भोगा दुःखयोनय एव ते।\nआद्यन्तवन्तः कौन्तेय न तेषु रमते बुधः॥", roman: "ye hi sansparśha-jā bhogā duḥkha-yonaya eva te\nādy-antavantaḥ kaunteya na teṣhu ramate budhaḥ", translation: "An intelligent person does not take part in the sources of misery, which are due to contact with the material senses. O son of Kunti, such pleasures have a beginning and an end, and so the wise man does not delight in them." },
+                { ref: "BG 6.22", sanskrit: "यं लब्ध्वा चापरं लाभं मन्यते नाधिकं ततः।\nयस्मिन्स्थितो न दुःखेन गुरुणापि विचाल्यते॥", roman: "yaṁ labdhvā chāparaṁ lābhaṁ manyate nādhikaṁ tataḥ\nyasmin sthito na duḥkhena guruṇāpi vichālyate", translation: "Established thus, one never departs from the truth, and upon gaining this he thinks there is no greater gain. Being situated in such a position, one is never shaken, even in the midst of greatest difficulty." },
+                { ref: "BG 2.13", sanskrit: "देहिनोऽस्मिन्यथा देहे कौमारं यौवनं जरा।\nतथा देहान्तरप्राप्तिर्धीरस्तत्र न मुह्यति॥", roman: "dehino ’smin yathā dehe kaumāraṁ yauvanaṁ jarā\ntathā dehāntara-prāptir dhīras tatra na muhyati", translation: "As the embodied soul continuously passes, in this body, from boyhood to youth to old age, the soul similarly passes into another body at death. A sober person is not bewildered by such a change." },
+                { ref: "BG 10.34", sanskrit: "मृत्युः सर्वहरश्चाहमुद्भवश्च भविष्यताम्।\nकीर्तिः श्रीर्वाक्च नारीणां स्मृतिर्मेधा धृतिः क्षमा॥", roman: "mṛityuḥ sarva-haraśh chāham udbhavaśh cha bhaviṣhyatām\nkīrtiḥ śhrīr vāk cha nārīṇāṁ smṛitir medhā dhṛitiḥ kṣhamā", translation: "I am all-devouring death, and I am the generating principle of all that is yet to be. Among women I am fame, fortune, fine speech, memory, intelligence, steadfastness and patience." },
+                { ref: "BG 2.20", sanskrit: "न जायते म्रियते वा कदाचिन्\nनायं भूत्वा भविता वा न भूयः।\nअजो नित्यः शाश्वतोऽयं पुराणो\nन हन्यते हन्यमाने शरीरे॥", roman: "na jāyate mriyate vā kadāchin\nnāyaṁ bhūtvā bhavitā vā na bhūyaḥ\najo nityaḥ śhāśhvato ’yaṁ purāṇo\nna hanyate hanyamāne śharīre", translation: "For the soul there is neither birth nor death at any time. He has not come into being, does not come into being, and will not come into being. He is unborn, eternal, ever-existing and primeval. He is not slain when the body is slain." },
+                { ref: "BG 15.5", sanskrit: "निर्मानमोहा जितसङ्गदोषा\nअध्यात्मनित्या विनिवृत्तकामाः।\nद्वन्द्वैर्विमुक्ताः सुखदुःखसंज्ञैर्\nगच्छन्त्यमूढाः पदमव्ययं तत्॥", roman: "nirmāna-mohā jita-sanga-doṣhā\nadhyātma-nityā vinivṛitta-kāmāḥ\ndvandvair vimuktāḥ sukha-duḥkha-sanjñair\ngachchhanty amūḍhāḥ padam avyayaṁ tat", translation: "Those who are free from false prestige, illusion and false association, who understand the eternal, who are done with material lust, who are freed from the dualities of happiness and distress, and who, unbewildered, know how to surrender unto the Supreme Person attain to that eternal kingdom." },
+                { ref: "BG 5.20", sanskrit: "न प्रहृष्येत्प्रियं प्राप्य नोद्विजेत्प्राप्य चाप्रियम्।\nस्थिरबुद्धिरसम्मूढो ब्रह्मविद् ब्रह्मणि स्थितः॥", roman: "na prahṛiṣhyet priyaṁ prāpya nodvijet prāpya chāpriyam\nsthira-buddhir asammūḍho brahma-vid brahmaṇi sthitaḥ", translation: "A person who neither rejoices upon achieving something pleasant nor laments upon obtaining something unpleasant, who is self-intelligent, who is unbewildered, and who knows the science of God, is already situated in transcendence." }
             ],
             Anger: [
-                 { ref: "BG 2.63", sanskrit: "क्रोधाद्भवति सम्मोहः सम्मोहात्स्मृतिविभ्रमः।\nस्मृतिभ्रंशाद्बुद्धिनाशो बुद्धिनाशात्प्रणश्यति॥", roman: "krodhād bhavati sammohaḥ sammohāt smṛiti-vibhramaḥ\nsmṛiti-bhranśhād buddhi-nāśho buddhi-nāśhāt praṇaśhyati", translation: "From anger, complete delusion arises, and from delusion bewilderment of memory. When memory is bewildered, intelligence is lost." }
+                { ref: "BG 2.63", sanskrit: "क्रोधाद्भवति सम्मोहः सम्मोहात्स्मृतिविभ्रमः।\nस्मृतिभ्रंशाद्बुद्धिनाशो बुद्धिनाशात्प्रणश्यति॥", roman: "krodhād bhavati sammohaḥ sammohāt smṛiti-vibhramaḥ\nsmṛiti-bhranśhād buddhi-nāśho buddhi-nāśhāt praṇaśhyati", translation: "From anger, complete delusion arises, and from delusion bewilderment of memory. When memory is bewildered, intelligence is lost, and when intelligence is lost one falls down again into the material pool." },
+                { ref: "BG 2.62", sanskrit: "ध्यायतो विषयान्पुंसः सङ्गस्तेषूपजायते।\nसङ्गात्सञ्जायते कामः कामात्क्रोधोऽभिजायते॥", roman: "dhyāyato viṣhayān puṁsaḥ saṅgas teṣhūpajāyate\nsaṅgāt sañjāyate kāmaḥ kāmāt krodho ’bhijāyate", translation: "While contemplating the objects of the senses, a person develops attachment for them, and from such attachment lust develops, and from lust anger arises." },
+                { ref: "BG 16.21", sanskrit: "त्रिविधं नरकस्येदं द्वारं नाशनमात्मनः।\nकामः क्रोधस्तथा लोभस्तस्मादेतत्त्रयं त्यजेत्॥", roman: "tri-vidhaṁ narakasyedaṁ dvāraṁ nāśhanam ātmanaḥ\nkāmaḥ krodhas tathā lobhas tasmād etat trayaṁ tyajet", translation: "There are three gates leading to this hell—lust, anger and greed. Every sane man should give these up, for they lead to the degradation of the soul." },
+                { ref: "BG 5.23", sanskrit: "शक्नोतीहैव यः सोढुं प्राक्शरीरविमोक्षणात्।\nकामक्रोधोद्भवं वेगं स युक्तः स सुखी नरः॥", roman: "śhaknotīhaiva yaḥ soḍhuṁ prāk śharīra-vimokṣhaṇāt\nkāma-krodhodbhavaṁ vegaṁ sa yuktaḥ sa sukhī naraḥ", translation: "Before giving up this present body, if one is able to tolerate the urges of the material senses and check the force of desire and anger, he is well situated and is happy in this world." },
+                { ref: "BG 5.26", sanskrit: "कामक्रोधविमुक्तानां यतीनां यतचेतसाम्।\nअभितो ब्रह्मनिर्वाणं वर्तते विदितात्मनाम्॥", roman: "kāma-krodha-vimuktānāṁ yatīnāṁ yata-chetasām\nabhito brahma-nirvāṇaṁ vartate viditātmanām", translation: "Those who are free from anger and all material desires, who are self-realized, self-disciplined and constantly endeavoring for perfection, are assured of liberation in the Supreme in the very near future." },
+                { ref: "BG 16.2", sanskrit: "अहिंसा सत्यमक्रोधस्त्यागः शान्तिरपैशुनम्।\nदया भूतेष्वलोलुप्त्वं मार्दवं ह्रीरचापलम्॥", roman: "ahinsā satyam akrodhas tyāgaḥ śhāntir apaiśhunam\ndayā bhūteṣhv aloluptvaṁ mārdavaṁ hrīr achāpalam", translation: "Nonviolence, truthfulness, freedom from anger; renunciation, tranquillity, aversion to faultfinding; compassion for all living entities; freedom from covetousness; gentleness, modesty and steady determination — these are transcendent qualities." },
+                { ref: "BG 12.13", sanskrit: "अद्वेष्टा सर्वभूतानां मैत्रः करुण एव च।\nनिर्ममो निरहङ्कारः समदुःखसुखः क्षमी॥", roman: "adveṣhṭā sarva-bhūtānāṁ maitraḥ karuṇa eva cha\nnirmamo nirahankāraḥ sama-duḥkha-sukhaḥ kṣhamī", translation: "One who is not envious but is a kind friend to all living entities, who does not think himself a proprietor and is free from false ego, who is equal in both happiness and distress, who is tolerant... such a devotee of Mine is very dear to Me." },
+                { ref: "BG 3.37", sanskrit: "श्रीभगवानुवाच\nकाम एष क्रोध एष रजोगुणसमुद्भवः।\nमहाशनो महापाप्मा विद्ध्येनमिह वैरिणम्॥", roman: "śhrī bhagavān uvācha\nkāma eṣha krodha eṣha rajo-guṇa-samudbhavaḥ\nmahāśhano mahā-pāpmā viddhy enam iha vairiṇam", translation: "The Supreme Personality of Godhead said: It is lust only, Arjuna, which is born of contact with the material mode of passion and later transformed into anger, and which is the all-devouring sinful enemy of this world." },
+                { ref: "BG 4.10", sanskrit: "वीतरागभयक्रोधा मन्मया मामुपाश्रिताः।\nबहवो ज्ञानतपसा पूता मद्भावमागताः॥", roman: "vīta-rāga-bhaya-krodhā man-mayā mām upāśhritāḥ\nbahavo jñāna-tapasā pūtā mad-bhāvam āgatāḥ", translation: "Being freed from attachment, fear and anger, being fully absorbed in Me and taking refuge in Me, many, many persons in the past became purified by knowledge of Me—and thus they all attained transcendental love for Me." },
+                { ref: "BG 2.56", sanskrit: "दुःखेष्वनुद्विग्नमनाः सुखेषु विगतस्पृहः।\nवीतरागभयक्रोधः स्थितधीर्मुनिरुच्यते॥", roman: "duḥkheṣhv anudvigna-manāḥ sukheṣhu vigata-spṛihaḥ\nvīta-rāga-bhaya-krodhaḥ sthita-dhīr munir uchyate", translation: "One who is not disturbed in mind even amidst the threefold miseries or elated when there is happiness, and who is free from attachment, fear and anger, is called a sage of steady mind." }
             ],
             Loneliness: [
-                { ref: "BG 6.30", sanskrit: "यो मां पश्यति सर्वत्र सर्वं च मयि पश्यति।\nतस्याहं न प्रणश्यामि स च मे न प्रणश्यति॥", roman: "yo māṁ paśhyati sarvatra sarvaṁ cha mayi paśhyati\ntasyāhaṁ na praṇaśhyāmi sa cha me na praṇaśhyati", translation: "For one who sees Me everywhere and sees everything in Me, I am never lost, nor is he ever lost to Me." }
+                { ref: "BG 6.30", sanskrit: "यो मां पश्यति सर्वत्र सर्वं च मयि पश्यति।\nतस्याहं न प्रणश्यामि स च मे न प्रणश्यति॥", roman: "yo māṁ paśhyati sarvatra sarvaṁ cha mayi paśhyati\ntasyāhaṁ na praṇaśhyāmi sa cha me na praṇaśhyāmi", translation: "For one who sees Me everywhere and sees everything in Me, I am never lost, nor is he ever lost to Me." },
+                { ref: "BG 6.31", sanskrit: "सर्वभूतस्थितं यो मां भजत्येकत्वमास्थितः।\nसर्वथा वर्तमानोऽपि स योगी मयि वर्तते॥", roman: "sarva-bhūta-sthitaṁ yo māṁ bhajaty ekatvam āsthitaḥ\nsarvathā vartamāno ’pi sa yogī mayi vartate", translation: "Such a yogi, who engages in the worshipful service of the Supersoul, knowing that I and the Supersoul are one, remains always in Me in all circumstances." },
+                { ref: "BG 9.29", sanskrit: "समोऽहं सर्वभूतेषु न मे द्वेष्योऽस्ति न प्रियः।\nये भजन्ति तु मां भक्त्या मयि ते तेषु चाप्यहम्॥", roman: "samo ’haṁ sarva-bhūteṣhu na me dveṣhyo ’sti na priyaḥ\nye bhajanti tu māṁ bhaktyā mayi te teṣhu chāpy aham", translation: "I envy no one, nor am I partial to anyone. I am equal to all. But whoever renders service unto Me in devotion is a friend, is in Me, and I am also a friend to him." },
+                { ref: "BG 15.15", sanskrit: "सर्वस्य चाहं हृदि सन्निविष्टो\nमत्तः स्मृतिर्ज्ञानमपोहनं च।\nवेदैश्च सर्वैरहमेव वेद्यो\nवेदान्तकृद्वेदविदेव चाहम्॥", roman: "sarvasya chāhaṁ hṛidi sanniviṣhṭo\nmattaḥ smṛitir jñānam apohanaṁ cha\nvedaiśh cha sarvair aham eva vedyo\nvedānta-kṛid veda-vid eva chāham", translation: "I am seated in everyone's heart, and from Me come remembrance, knowledge and forgetfulness. By all the Vedas, I am to be known. Indeed, I am the compiler of Vedanta, and I am the knower of the Vedas." },
+                { ref: "BG 7.7", sanskrit: "मत्तः परतरं नान्यत्किञ्चिदस्ति धनञ्जय।\nमयि सर्वमिदं प्रोतं सूत्रे मणिगणा इव॥", roman: "mattaḥ parataraṁ nānyat kiñchid asti dhanañjaya\nmayi sarvam idaṁ protaṁ sūtre maṇi-gaṇā iva", translation: "O conqueror of wealth, there is no truth superior to Me. Everything rests upon Me, as pearls are strung on a thread." },
+                { ref: "BG 10.20", sanskrit: "अहमात्मा गुडाकेश सर्वभूताशयस्थितः।\nअहमादिश्च मध्यं च भूतानामन्त एव च॥", roman: "aham ātmā guḍākeśha sarva-bhūtāśhaya-sthitaḥ\naham ādiśh cha madhyaṁ cha bhūtānām anta eva cha", translation: "I am the Supersoul, O Arjuna, seated in the hearts of all living entities. I am the beginning, the middle and the end of all beings." },
+                { ref: "BG 13.16", sanskrit: "बहिरन्तश्च भूतानामचरं चरमेव च।\nसूक्ष्मत्वात्तदविज्ञेयं दूरस्थं चान्तिके च तत्॥", roman: "bahir antaśh cha bhūtānām acharaṁ charam eva cha\nsūkṣhmatvāt tad avijñeyaṁ dūra-sthaṁ chāntike cha tat", translation: "The Supreme Truth exists outside and inside of all living beings, the moving and the nonmoving. Because He is subtle, He is beyond the power of the material senses to see or to know. Although far, far away, He is also near to all." },
+                { ref: "BG 9.17", sanskrit: "पिताहमस्य जगतो माता धाता पितामहः।\nवेद्यं पवित्रमोङ्कार ऋक्साम यजुरेव च॥", roman: "pitāham asya jagato mātā dhātā pitāmahaḥ\nvedyaṁ pavitram oṅkāra ṛik sāma yajur eva cha", translation: "I am the father of this universe, the mother, the support and the grandsire. I am the object of knowledge, the purifier and the syllable om. I am also the Rig, the Sama and the Yajur Vedas." },
+                { ref: "BG 18.61", sanskrit: "ईश्वरः सर्वभूतानां हृद्देशेऽर्जुन तिष्ठति।\nभ्रामयन्सर्वभूतानि यन्त्रारूढानि मायया॥", roman: "īśhvaraḥ sarva-bhūtānāṁ hṛid-deśhe ’rjuna tiṣhṭhati\nbhrāmayan sarva-bhūtāni yantrārūḍhāni māyayā", translation: "The Supreme Lord is situated in everyone's heart, O Arjuna, and is directing the wanderings of all living entities, who are seated as on a machine, made of the material energy." },
+                { ref: "BG 10.39", sanskrit: "यच्चापि सर्वभूतानां बीजं तदहमर्जुन।\nन तदस्ति विना यत्स्यान्मया भूतं चराचरम्॥", roman: "yach chāpi sarva-bhūtānāṁ bījaṁ tad aham arjuna\nna tad asti vinā yat syān mayā bhūtaṁ charācharam", translation: "Furthermore, O Arjuna, I am the generating seed of all existences. There is no being—moving or nonmoving—that can exist without Me." }
             ],
             Laziness: [
-                { ref: "BG 3.8", sanskrit: "नियतं कुरु कर्म त्वं कर्म ज्यायो ह्यकर्मणः।\nशरीरयात्रापि च ते न प्रसिद्ध्येदकर्मणः॥", roman: "niyataṁ kuru karma tvaṁ karma jyāyo hy akarmaṇaḥ\nśharīra-yātrāpi cha te na prasiddhyed akarmaṇaḥ", translation: "Perform your prescribed duty, for doing so is better than not working. One cannot even maintain one's physical body without work." }
+                { ref: "BG 3.8", sanskrit: "नियतं कुरु कर्म त्वं कर्म ज्यायो ह्यकर्मणः।\nशरीरयात्रापि च ते न प्रसिद्ध्येदकर्मणः॥", roman: "niyataṁ kuru karma tvaṁ karma jyāyo hy akarmaṇaḥ\nśharīra-yātrāpi cha te na prasiddhyed akarmaṇaḥ", translation: "Perform your prescribed duty, for doing so is better than not working. One cannot even maintain one's physical body without work." },
+                { ref: "BG 3.4", sanskrit: "न कर्मणामनारम्भान्नैष्कर्म्यं पुरुषोऽश्नुते।\nन च सन्न्यसनादेव सिद्धिं समधिगच्छति॥", roman: "na karmaṇām anārambhān naiṣhkarmyaṁ puruṣho ’śhnute\nna cha sannyasanād eva siddhiṁ samadhigachchhati", translation: "Not by merely abstaining from work can one achieve freedom from reaction, nor by renunciation alone can one attain perfection." },
+                { ref: "BG 18.39", sanskrit: "यदग्रे चानुबन्धे च सुखं मोहनमात्मनः।\nनिद्रालस्यप्रमादोत्थं तत्तामसमुदाहृतम्॥", roman: "yad agre chānubandhe cha sukhaṁ mohanam ātmanaḥ\nnidrālasya-pramādotthaṁ tat tāmasam udāhṛitam", translation: "And that happiness which is blind to self-realization from beginning to end and which arises from sleep, laziness and illusion is said to be of the nature of ignorance." },
+                { ref: "BG 3.19", sanskrit: "तस्मादसक्तः सततं कार्यं कर्म समाचर।\nअसक्तो ह्याचरन्कर्म परमाप्नोति पूरुषः॥", roman: "tasmād asaktaḥ satataṁ kāryaṁ karma samāchara\nasakto hy ācharan karma param āpnoti pūruṣhaḥ", translation: "Therefore, without being attached to the fruits of activities, one should act as a matter of duty, for by working without attachment one attains the Supreme." },
+                { ref: "BG 14.8", sanskrit: "तमस्त्वज्ञानजं विद्धि मोहनं सर्वदेहिनाम्।\nप्रमादालस्यनिद्राभिस्तन्निबध्नाति भारत॥", roman: "tamas tv ajñāna-jaṁ viddhi mohanaṁ sarva-dehinām\npramādālasya-nidrābhis tan nibadhnāti bhārata", translation: "O son of Bharata, know that the mode of darkness, born of ignorance, is the delusion of all embodied living entities. The results of this mode are madness, indolence and sleep, which bind the conditioned soul." },
+                { ref: "BG 3.16", sanskrit: "एवं प्रवर्तितं चक्रं नानुवर्तयतीह यः।\nअघायुरिन्द्रियारामो मोघं पार्थ स जीवति॥", roman: "evaṁ pravartitaṁ chakraṁ nānuvartayatīha yaḥ\naghāyur indriyārāmo moghaṁ pārtha sa jīvati", translation: "My dear Arjuna, one who does not follow in human life the cycle of sacrifice thus established by the Vedas certainly leads a life full of sin. Living only for the satisfaction of the senses, such a person lives in vain." },
+                { ref: "BG 6.16", sanskrit: "नात्यश्नतस्तु योगोऽस्ति न चैकान्तमनश्नतः।\nन चाति स्वप्नशीलस्य जाग्रतो नैव चार्जुन॥", roman: "nāty-aśhnatas tu yogo ’sti na chaikāntam anaśhnataḥ\nna chāti-svapna-śhīlasya jāgrato naiva chārjuna", translation: "There is no possibility of one's becoming a yogi, O Arjuna, if one eats too much or eats too little, sleeps too much or does not sleep enough." },
+                { ref: "BG 18.28", sanskrit: "अयुक्तः प्राकृतः स्तब्धः शठो नैष्कृतिकोऽलसः।\nविषादी दीर्घसूत्री च कर्ता तामस उच्यते॥", roman: "ayuktaḥ prākṛitaḥ stabdhaḥ śhaṭho naiṣhkṛitiko ’lasaḥ\nviṣhādī dīrgha-sūtrī cha kartā tāmasa uchyate", translation: "The worker who is always engaged in work against the injunctions of the scripture, who is materialistic, obstinate, cheating and expert in insulting others, and who is lazy, always morose and procrastinating is said to be a worker in the mode of ignorance." },
+                { ref: "BG 3.5", sanskrit: "न हि कश्चित्क्षणमपि जातु तिष्ठत्यकर्मकृत्।\nकार्यते ह्यवशः कर्म सर्वः प्रकृतिजैर्गुणैः॥", roman: "na hi kaśhchit kṣhaṇam api jātu tiṣhṭhaty akarma-kṛit\nkāryate hy avaśhaḥ karma sarvaḥ prakṛiti-jair guṇaiḥ", translation: "Everyone is forced to act helplessly according to the qualities he has acquired from the modes of material nature; therefore no one can refrain from doing something, not even for a moment." },
+                { ref: "BG 3.21", sanskrit: "यद्यदाचरति श्रेष्ठस्तत्तदेवेतरो जनः।\nस यत्प्रमाणं कुरुते लोकस्तदनुवर्तते॥", roman: "yad yad ācharati śhreṣhṭhas tat tad evetaro janaḥ\nsa yat pramāṇaṁ kurute lokas tad anuvartate", translation: "Whatever action a great man performs, common men follow. And whatever standards he sets by exemplary acts, all the world pursues." }
             ],
             Protection: [
-                { ref: "BG 18.66", sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज।\nअहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥", roman: "sarva-dharmān parityajya mām ekaṁ śharaṇaṁ vraja\nahaṁ tvāṁ sarva-pāpebhyo mokṣhayiṣhyāmi mā śhuchaḥ", translation: "Abandon all varieties of religion and just surrender unto Me. I shall deliver you from all sinful reactions. Do not fear." }
+                { ref: "BG 18.66", sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज।\nअहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥", roman: "sarva-dharmān parityajya mām ekaṁ śharaṇaṁ vraja\nahaṁ tvāṁ sarva-pāpebhyo mokṣhayiṣhyāmi mā śhuchaḥ", translation: "Abandon all varieties of religion and just surrender unto Me. I shall deliver you from all sinful reactions. Do not fear." },
+                { ref: "BG 9.31", sanskrit: "क्षिप्रं भवति धर्मात्मा शश्वच्छान्तिं निगच्छति।\nकौन्तेय प्रतिजानीहि न मे भक्तः प्रणश्यति॥", roman: "kṣhipraṁ bhavati dharmātmā śhaśhvach-chhāntiṁ nigachchhati\nkaunteya pratijānīhi na me bhaktaḥ praṇaśhyati", translation: "He quickly becomes righteous and attains lasting peace. O son of Kunti, declare it boldly that My devotee never perishes." },
+                { ref: "BG 9.22", sanskrit: "अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते।\nतेषां नित्याभियुक्तानां योगक्षेमं वहाम्यहम्॥", roman: "ananyāśh chintayanto māṁ ye janāḥ paryupāsate\nteṣhāṁ nityābhiyuktānāṁ yoga-kṣhemaṁ vahāmy aham", translation: "But those who always worship Me with exclusive devotion, meditating on My transcendental form—to them I carry what they lack, and I preserve what they have." },
+                { ref: "BG 11.33", sanskrit: "तस्मात्त्वमुत्तिष्ठ यशो लभस्व\nजित्वा शत्रून्भुङ्क्ष्व राज्यं समृद्धम्।\nमयैवैते निहताः पूर्वमेव\nनिमित्तमात्रं भव सव्यसाचिन्॥", roman: "tasmāt tvam uttiṣhṭha yaśho labhasva\njitvā śhatrūn bhuṅkṣhva rājyaṁ samṛiddham\nmayaivaite nihatāḥ pūrvam eva\nnimitta-mātraṁ bhava savya-sāchin", translation: "Therefore get up. Prepare to fight and win glory. Conquer your enemies and enjoy a flourishing kingdom. They are already put to death by My arrangement, and you, O Savyasaci, can be but an instrument in the fight." },
+                { ref: "BG 8.5", sanskrit: "अन्तकाले च मामेव स्मरन्मुक्त्वा कलेवरम्।\nयः प्रयाति स मद्भावं याति नास्त्यत्र संशयः॥", roman: "anta-kāle cha mām eva smaran muktvā kalevaram\nyaḥ prayāti sa mad-bhāvaṁ yāti nāsty atra sanśhayaḥ", translation: "And whoever, at the end of his life, quits his body remembering Me alone at once attains My nature. Of this there is no doubt." },
+                { ref: "BG 12.7", sanskrit: "तेषामहं समुद्धर्ता मृत्युसंसारसागरात्।\nभवामि न चिरात्पार्थ मय्यावेशितचेतसाम्॥", roman: "teṣhām ahaṁ samuddhartā mṛityu-sansāra-sāgarāt\nbhavāmi na chirāt pārtha mayy āveśhita-chetasām", translation: "But those who worship Me, giving up all their activities unto Me and being devoted to Me without deviation, engaged in devotional service and always meditating upon Me... for them I am the swift deliverer from the ocean of birth and death." },
+                { ref: "BG 7.14", sanskrit: "दैवी ह्येषा गुणमयी मम माया दुरत्यया।\nमामेव ये प्रपद्यन्ते मायामेतां तरन्ति ते॥", roman: "daivī hy eṣhā guṇa-mayī mama māyā duratyayā\nmām eva ye prapadyante māyām etāṁ taranti te", translation: "This divine energy of Mine, consisting of the three modes of material nature, is difficult to overcome. But those who have surrendered unto Me can easily cross beyond it." },
+                { ref: "BG 11.36", sanskrit: "अर्जुन उवाच\nस्थाने हृषीकेश तव प्रकीर्त्या\nजगत्प्रहृष्यत्यनुरज्यते च।\nरक्षांसि भीतानि दिशो द्रवन्ति\nसर्वे नमस्यन्ति च सिद्धसङ्घाः॥", roman: "arjuna uvācha\nsthāne hṛiṣhīkeśha tava prakīrtyā\njagat prahṛiṣhyaty anurajyate cha\nrakṣhānsi bhītāni diśho dravanti\nsarve namasyanti cha siddha-saṅghāḥ", translation: "Arjuna said: O master of the senses, the world becomes joyful upon hearing Your name, and thus everyone becomes attached to You. Although the perfected beings offer You their respectful homage, the demons are afraid, and they flee here and there. All this is rightly done." },
+                { ref: "BG 9.30", sanskrit: "अपि चेत्सुदुराचारो भजते मामनन्यभाक्।\nसाधुरेव स मन्तव्यः सम्यग्व्यवसितो हि सः॥", roman: "api chet su-durāchāro bhajate mām ananya-bhāk\nsādhur eva sa mantavyaḥ samyag vyavasito hi saḥ", translation: "Even if one commits the most abominable action, if he is engaged in devotional service he is to be considered saintly because he is properly situated in his determination." },
+                { ref: "BG 18.62", sanskrit: "तमेव शरणं गच्छ सर्वभावेन भारत।\nतत्प्रसादात्परां शान्तिं स्थानं प्राप्स्यसि शाश्वतम्॥", roman: "tam eva śharaṇaṁ gachchha sarva-bhāvena bhārata\ntat-prasādāt parāṁ śhāntiṁ sthānaṁ prāpsyasi śhāśhvatam", translation: "O scion of Bharata, surrender unto Him utterly. By His grace you will attain transcendental peace and the supreme and eternal abode." }
             ],
             Happiness: [
-                { ref: "BG 2.65", sanskrit: "प्रसादे सर्वदुःखानां हानिरस्योपजायते।\nप्रसन्नचेतसो ह्याशु बुद्धिः पर्यवतिष्ठते॥", roman: "prasāde sarva-duḥkhānāṁ hānir asyopajāyate\nprasanna-chetaso hy āśhu buddhiḥ paryavatiṣhṭhate", translation: "For one thus satisfied, the threefold miseries of material existence exist no longer; in such satisfied consciousness, one's intelligence is soon well established." }
+                { ref: "BG 2.65", sanskrit: "प्रसादे सर्वदुःखानां हानिरस्योपजायते।\nप्रसन्नचेतसो ह्याशु बुद्धिः पर्यवतिष्ठते॥", roman: "prasāde sarva-duḥkhānāṁ hānir asyopajāyate\nprasanna-chetaso hy āśhu buddhiḥ paryavatiṣhṭhate", translation: "For one thus satisfied, the threefold miseries of material existence exist no longer; in such satisfied consciousness, one's intelligence is soon well established." },
+                { ref: "BG 6.27", sanskrit: "प्रशान्तमनसं ह्येनं योगिनं सुखमुत्तमम्।\nउपैति शान्तरजसं ब्रह्मभूतमकल्मषम्॥", roman: "praśhānta-manasaṁ hy enaṁ yoginaṁ sukham uttamam\nupaiti śhānta-rajasaṁ brahma-bhūtam akalmaṣham", translation: "The yogi whose mind is fixed on Me verily attains the highest perfection of transcendental happiness. He is beyond the mode of passion, he realizes his qualitative identity with the Supreme, and thus he is freed from all reactions to past deeds." },
+                { ref: "BG 6.28", sanskrit: "युञ्जन्नेवं सदात्मानं योगी विगतकल्मषः।\nसुखेन ब्रह्मसंस्पर्शमत्यन्तं सुखमश्नुते॥", roman: "yuñjann evaṁ sadātmānaṁ yogī vigata-kalmaṣhaḥ\nsukhena brahma-sansparśham atyantaṁ sukham aśhnute", translation: "Thus, the self-controlled yogi, constantly engaged in yoga practice, becomes free from all material contamination and achieves the highest stage of perfect happiness in transcendental loving service to the Lord." },
+                { ref: "BG 5.21", sanskrit: "बाह्यस्पर्शेष्वसक्तात्मा विन्दत्यात्मनि यत्सुखम्।\nस ब्रह्मयोगयुक्तात्मा सुखमक्षयमश्नुते॥", roman: "bāhya-sparśheṣhv asaktātmā vindaty ātmani yat sukham\nsa brahma-yoga-yuktātmā sukham akṣhayam aśhnute", translation: "Such a liberated person is not attracted to material sense pleasure but is always in trance, enjoying the pleasure within. In this way the self-realized person enjoys unlimited happiness, for he concentrates on the Supreme." },
+                { ref: "BG 18.37", sanskrit: "यत्तदग्रे विषमिव परिणामे मृतोपमम्।\nतत्सुखं सात्त्विकं प्रोक्तमात्मबुद्धिप्रसादजम्॥", roman: "yat tad agre viṣham iva pariṇāme mṛitopamam\ntat sukhaṁ sāttvikaṁ proktam ātma-buddhi-prasāda-jam", translation: "That which in the beginning may be just like poison but at the end is just like nectar and which awakens one to self-realization is said to be happiness in the mode of goodness." },
+                { ref: "BG 5.24", sanskrit: "योऽन्तःसुखोऽन्तरारामस्तथान्तर्ज्योतिरेव यः।\nस योगी ब्रह्मनिर्वाणं ब्रह्मभूतोऽधिगच्छति॥", roman: "yo ’ntaḥ-sukho ’ntar-ārāmas tathāntar-jyotir eva yaḥ\nsa yogī brahma-nirvāṇaṁ brahma-bhūto ’dhigachchhati", translation: "One whose happiness is within, who is active and rejoices within, and whose aim is inward is actually the perfect mystic. He is liberated in the Supreme, and ultimately he attains the Supreme." },
+                { ref: "BG 10.9", sanskrit: "मच्चित्ता मद्गतप्राणा बोधयन्तः परस्परम्।\nकथयन्तश्च मां नित्यं तुष्यन्ति च रमन्ति च॥", roman: "mac-chittā mad-gata-prāṇā bodhayantaḥ parasparam\nkathayantaśh cha māṁ nityaṁ tuṣhyanti cha ramanti cha", translation: "The thoughts of My pure devotees dwell in Me, their lives are fully devoted to My service, and they derive great satisfaction and bliss from always enlightening one another and conversing about Me." },
+                { ref: "BG 12.19", sanskrit: "तुल्यनिन्दास्तुतिर्मौनी सन्तुष्टो येन केनचित्।\nअनिकेतः स्थिरमतिर्भक्तिमान्मे प्रियो नरः॥", roman: "tulya-nindā-stutir maunī santuṣhṭo yena kenachit\naniketaḥ sthira-matir bhaktimān me priyo naraḥ", translation: "He who is equal to friends and enemies, who is equipoised in honor and dishonor, heat and cold, happiness and distress, fame and infamy, who is always free from contaminating association, always silent and satisfied with anything... is very dear to Me." },
+                { ref: "BG 17.16", sanskrit: "मनःप्रसादः सौम्यत्वं मौनमात्मविनिग्रहः।\nभावसंशुद्धिरित्येतत्तपो मानसमुच्यते॥", roman: "manaḥ-prasādaḥ saumyatvaṁ maunam ātma-vinigrahaḥ\nbhāva-sanśhuddhir ity etat tapo mānasam uchyate", translation: "And satisfaction, simplicity, gravity, self-control and purification of one's existence are the austerities of the mind." },
+                { ref: "BG 2.70", sanskrit: "आपूर्यमाणमचलप्रतिष्ठं\nसमुद्रमापः प्रविशन्ति यद्वत्।\nतद्वत्कामा यं प्रविशन्ति सर्वे\nस शान्तिमाप्नोति न कामकामी॥", roman: "āpūryamāṇam achala-pratiṣhṭhaṁ\nsamudram āpaḥ praviśhanti yadvat\ntadvat kāmā yaṁ praviśhanti sarve\nsa śhāntim āpnoti na kāma-kāmī", translation: "A person who is not disturbed by the incessant flow of desires—that enter like rivers into the ocean, which is ever being filled but is always still—can alone achieve peace, and not the man who strives to satisfy such desires." }
             ],
             Peace: [
-                { ref: "BG 2.71", sanskrit: "विहाय कामान्यः सर्वान्पुमांश्चरति निःस्पृहः।\nनिर्ममो निरहङ्कारः स शान्तिमधिगच्छति॥", roman: "vihāya kāmān yaḥ sarvān pumānśh charati niḥspṛihaḥ\nnirmamo nirahaṅkāraḥ sa śhāntim adhigachchhati", translation: "A person who has given up all desires for sense gratification, who lives free from desires, who has given up all sense of proprietorship and is devoid of false ego—he alone can attain real peace." }
+                { ref: "BG 2.71", sanskrit: "विहाय कामान्यः सर्वान्पुमांश्चरति निःस्पृहः।\nनिर्ममो निरहङ्कारः स शान्तिमधिगच्छति॥", roman: "vihāya kāmān yaḥ sarvān pumānśh charati niḥspṛihaḥ\nnirmamo nirahaṅkāraḥ sa śhāntim adhigachchhati", translation: "A person who has given up all desires for sense gratification, who lives free from desires, who has given up all sense of proprietorship and is devoid of false ego—he alone can attain real peace." },
+                { ref: "BG 4.39", sanskrit: "श्रद्धावांल्लभते ज्ञानं तत्परः संयतेन्द्रियः।\nज्ञानं लब्ध्वा परां शान्तिमचिरेणाधिगच्छति॥", roman: "śhraddhāvān labhate jñānaṁ tat-paraḥ sanyatendriyaḥ\njñānaṁ labdhvā parāṁ śhāntim achireṇādhigachchhati", translation: "A faithful man who is dedicated to transcendental knowledge and who subdues his senses is eligible to achieve such knowledge, and having achieved it he quickly attains the supreme spiritual peace." },
+                { ref: "BG 5.29", sanskrit: "भोक्तारं यज्ञतपसां सर्वलोकमहेश्वरम्।\nसुहृदं सर्वभूतानां ज्ञात्वा मां शान्तिमृच्छति॥", roman: "bhoktāraṁ yajña-tapasāṁ sarva-loka-maheśhvaram\nsuhṛidaṁ sarva-bhūtānāṁ jñātvā māṁ śhāntim ṛichchhati", translation: "A person in full consciousness of Me, knowing Me to be the ultimate beneficiary of all sacrifices and austerities, the Supreme Lord of all planets and demigods, and the benefactor and well-wisher of all living entities, attains peace from the pangs of material miseries." },
+                { ref: "BG 2.66", sanskrit: "नास्ति बुद्धिरयुक्तस्य न चायुक्तस्य भावना।\nन चाभावयतः शान्तिरशान्तस्य कुतः सुखम्॥", roman: "nāsti buddhir ayuktasya na chāyuktasya bhāvanā\nna chābhāvayataḥ śhāntir aśhāntasya kutaḥ sukham", translation: "One who is not connected with the Supreme can have neither transcendental intelligence nor a steady mind, without which there is no possibility of peace. And how can there be any happiness without peace?" },
+                { ref: "BG 6.7", sanskrit: "जितात्मनः प्रशान्तस्य परमात्मा समाहितः।\nशीतोष्णसुखदुःखेषु तथा मानापमानयोः॥", roman: "jitātmanaḥ praśhāntasya paramātmā samāhitaḥ\nśhītoṣhṇa-sukha-duḥkheṣhu tathā mānāpamānayoḥ", translation: "For one who has conquered the mind, the Supersoul is already reached, for he has attained tranquillity. To such a man happiness and distress, heat and cold, honor and dishonor are all the same." },
+                { ref: "BG 12.12", sanskrit: "श्रेयो हि ज्ञानमभ्यासाज्ज्ञानाद्ध्यानं विशिष्यते।\nध्यानात्कर्मफलत्यागस्त्यागाच्छान्तिरनन्तरम्॥", roman: "śhreyo hi jñānam abhyāsāj jñānād dhyānaṁ viśhiṣhyate\ndhyānāt karma-phala-tyāgas tyāgāch chhāntir anantaram", translation: "If you cannot take to this practice, then engage yourself in the cultivation of knowledge. Better than knowledge, however, is meditation, and better than meditation is renunciation of the fruits of action, for by such renunciation one can attain peace of mind." },
+                { ref: "BG 2.64", sanskrit: "रागद्वेषविमुक्तैस्तु विषयानिन्द्रियैश्चरन्।\nआत्मवश्यैर्विधेयात्मा प्रसादमधिगच्छति॥", roman: "rāga-dveṣha-vimuktais tu viṣhayān indriyaiśh charan\nātma-vaśhyair vidheyātmā prasādam adhigachchhati", translation: "But a person free from all attachment and aversion and able to control his senses through regulative principles of freedom can obtain the complete mercy of the Lord and attain peace." },
+                { ref: "BG 6.15", sanskrit: "युञ्जन्नेवं सदात्मानं योगी नियतमानसः।\nशान्तिं निर्वाणपरमां मत्संस्थामधिगच्छति॥", roman: "yuñjann evaṁ sadātmānaṁ yogī niyata-mānasaḥ\nśhāntiṁ nirvāṇa-paramāṁ mat-sansthām adhigachchhati", translation: "Thus practicing constant control of the body, mind and activities, the mystic transcendentalist, his mind regulated, attains to the kingdom of God [or the abode of Krishna] by cessation of material existence." },
+                { ref: "BG 18.53", sanskrit: "अहङ्कारं बलं दर्पं कामं क्रोधं परिग्रहम्।\nविमुच्य निर्ममः शान्तो ब्रह्मभूयाय कल्पते॥", roman: "ahaṅkāraṁ balaṁ darpaṁ kāmaṁ krodhaṁ parigraham\nvimuchya nirmamaḥ śhānto brahma-bhūyāya kalpate", translation: "False ego, strength, pride, lust, anger, and acceptance of material things are completely given up... such a person, who is peaceful and free from the sense of proprietorship, is certainly elevated to the position of self-realization." },
+                { ref: "BG 18.72", sanskrit: "कच्चिदेतच्छ्रुतं पार्थ त्वयैकाग्रेण चेतसा।\nकच्चिदज्ञानसम्मोहः प्रनष्टस्ते धनञ्जय॥", roman: "kachchid etach chhrutaṁ pārtha tvayaikāgreṇa chetasā\nkachchid ajñāna-sammohaḥ pranaṣhṭas te dhanañjaya", translation: "O son of Pritha, O conqueror of wealth, have you heard this with an attentive mind? And are your ignorance and illusions now dispelled?" }
             ]
         };
 
@@ -332,6 +414,18 @@
         let currentShlokaObj = null;
         let audioCtx, oscillatorBase, oscillatorBinaural, gainNode, lfo, isPlaying = false, breathInterval;
         let questCompleted = false;
+
+        // --- DYNAMIC AUDIO INJECTION ---
+        // Automatically assigns an audio file path to EVERY shloka in the database
+        Object.keys(shlokaDB).forEach(mood => {
+            shlokaDB[mood].forEach(shloka => {
+                if(!shloka.audio) {
+                    // Converts "BG 2.47" to "audio/bg_2_47.mp3"
+                    const cleanRef = shloka.ref.toLowerCase().replace('bg ', 'bg_').replace('.', '_');
+                    shloka.audio = `audio/${cleanRef}.mp3`;
+                }
+            });
+        });
 
         // --- AUTH, LOGIN & LOGOUT LOGIC ---
         function forceLogout(message) {
@@ -438,6 +532,14 @@
             document.getElementById('quest-text').classList.remove('checked');
             document.getElementById('quest-action-text').innerText = "Commit to Action";
             
+            const audioPlayer = document.getElementById('shloka-audio-player');
+            if(audioPlayer) {
+                audioPlayer.src = currentShlokaObj.audio;
+                audioPlayer.load();
+                resetShlokaAudioBtn();
+                if(window.speechSynthesis) window.speechSynthesis.cancel();
+            }
+
             document.getElementById('journal-input').value = ''; 
             navigate('shloka');
         }
@@ -447,6 +549,74 @@
             const randomCategory = categories[Math.floor(Math.random() * categories.length)];
             selectEmotion(randomCategory);
             showToast("The universe has chosen");
+        }
+
+        // --- SHLOKA AUDIO LOGIC ---
+        function resetShlokaAudioBtn() {
+            const playIcon = document.getElementById('shloka-play-icon');
+            const pauseIcon = document.getElementById('shloka-pause-icon');
+            const btnText = document.getElementById('shloka-audio-text');
+            if(playIcon && pauseIcon && btnText) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                btnText.innerText = "Listen to Verse";
+            }
+        }
+
+        function playShlokaAudio() {
+            const audioPlayer = document.getElementById('shloka-audio-player');
+            const playIcon = document.getElementById('shloka-play-icon');
+            const pauseIcon = document.getElementById('shloka-pause-icon');
+            const btnText = document.getElementById('shloka-audio-text');
+
+            if (!audioPlayer.paused || window.speechSynthesis?.speaking) {
+                audioPlayer.pause();
+                if(window.speechSynthesis) window.speechSynthesis.cancel();
+                resetShlokaAudioBtn();
+            } else {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                btnText.innerText = "Pause";
+                
+                // Try playing the MP3 file first
+                const playPromise = audioPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        // If file doesn't exist (e.g. 404), fallback to Text-to-Speech
+                        console.log("Audio file not found, falling back to inner voice synthesis.");
+                        speakShloka();
+                    });
+                }
+
+                audioPlayer.onended = () => { resetShlokaAudioBtn(); };
+            }
+        }
+
+        function speakShloka() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                
+                // Speak Sanskrit first (using Hindi voice if available)
+                const utteranceSanskrit = new SpeechSynthesisUtterance(currentShlokaObj.sanskrit);
+                utteranceSanskrit.lang = 'hi-IN'; 
+                utteranceSanskrit.rate = 0.8;
+                utteranceSanskrit.pitch = 0.9;
+                
+                // Then speak the English translation
+                const utteranceEnglish = new SpeechSynthesisUtterance(currentShlokaObj.translation);
+                utteranceEnglish.lang = 'en-US';
+                utteranceEnglish.rate = 0.9;
+
+                utteranceEnglish.onend = () => { resetShlokaAudioBtn(); };
+                utteranceSanskrit.onerror = () => { resetShlokaAudioBtn(); };
+                utteranceEnglish.onerror = () => { resetShlokaAudioBtn(); };
+                
+                window.speechSynthesis.speak(utteranceSanskrit);
+                window.speechSynthesis.speak(utteranceEnglish);
+            } else {
+                showToast("Voice synthesis not supported.");
+                resetShlokaAudioBtn();
+            }
         }
 
         // --- SANKALPA & QUEST LOGIC ---
